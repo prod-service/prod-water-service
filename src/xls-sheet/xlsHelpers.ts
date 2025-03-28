@@ -1,7 +1,8 @@
 import * as XLSX from 'xlsx-js-style';
-import { defaultFont, leftCenterAlignHV, centerAlignVH, defaultBorderStyle, defultStyles, textRotation, waterConst, waterValuesRange } from '../consts';
-import { IDataCell, IPerson } from '../interface';
+import { defaultFont, leftCenterAlignHV, centerAlignVH, defaultBorderStyle, defultStyles, textRotation, waterConst, headerTitleCellAddress, documentNumberCellAddress, registNumberCellAddress } from '../consts';
+import { ICalcTotalWatePerDay, IDataCell, IPerson } from '../interface';
 import { addOneDayToDateStr, formatDate, parseToNum, reverseDateFromFileName } from '../helpers';
+import { headerTitle } from './dictionary';
 
 export const getCellsArrFromRange = (worksheet: XLSX.WorkSheet, range: string): IDataCell[] => {
     const rangeRef = XLSX.utils.decode_range(range);
@@ -157,11 +158,6 @@ export const setCellTypeForRange = (worksheet: XLSX.WorkSheet, range: string, ce
 
 // };
 
-interface ICalcTotalWatePerDay {
-    totalColArr: number[],
-    total: number
-};
-
 export const calcTotalWaterPerDay = (worksheet: XLSX.WorkSheet, valuesRange: string): ICalcTotalWatePerDay => {
     const waterValues: XLSX.Range = XLSX.utils.decode_range(valuesRange);
     const values: number[] = [];
@@ -195,4 +191,16 @@ export const parseDateForOutpu = (dateStr: string): string => {
     const reversed = reverseDateFromFileName(dateStr);
     const formated = formatDate(reversed);
     return addOneDayToDateStr(formated);
+};
+
+export const setDocumentNumber = (worksheet: XLSX.WorkSheet, numberValue: string | number): void => {
+    [registNumberCellAddress, documentNumberCellAddress]
+        .forEach((cellAddress) => {
+            worksheet[cellAddress] = { ...worksheet[cellAddress], v: numberValue }
+        });
+
+    worksheet[headerTitleCellAddress] = {
+        ...worksheet[headerTitleCellAddress],
+        v: headerTitle(numberValue)
+    }
 };

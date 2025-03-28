@@ -46,6 +46,7 @@ export const dateSeparator = '-';
 export const waterConst = '1,5';
 export const maxNameListLength = 40;
 export const dateRegex = new RegExp(`\\d{2,4}\\${dateSeparator}\\d{1,2}\\${dateSeparator}\\d{1,2}`);
+export const defaultOutputFileName = 'вода';
 
 // Excel's
 export const defaultFontName = 'Times New Roman';
@@ -71,6 +72,9 @@ export const namesRange = 'B18:B57';
 export const waterValuesRange = 'C18:AG57';
 export const totalDayWaterRange = 'C58:AG58';
 export const mainTotalWaterValueCell = 'AH58';
+export const headerTitleCellAddress = 'A1';
+export const registNumberCellAddress = 'A5';
+export const documentNumberCellAddress = 'G5';
 
 const resultExample: IFileBase = {
     'kotlove': [

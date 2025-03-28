@@ -1,12 +1,31 @@
 import * as fs from 'fs';
 // import * as fs from 'fs/promises';
 import * as path from 'path';
+import yargs from "yargs";
 import { getSheetData, getSheetDataJson, getWorkbookXlsx } from './xls-sheet/import';
-import { addBordersMultiTable, addCellsStyles, addRotateStyles, calcTotalWaterPerDay, insertDataIntoRange, parseDateForOutpu, setCellTypeForRange } from './xls-sheet/xlsHelpers';
+import { addBordersMultiTable, addCellsStyles, addRotateStyles, insertDataIntoRange, parseDateForOutpu } from './xls-sheet/xlsHelpers';
 import { exportListToExcel } from './xls-sheet/export';
-import { bodyTableRange, dateRange, dateSeparator, dateSignRange, fullPageRange, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFileName, templateFolder, totalDayWaterRange, totalItemsRange, waterValuesRange } from './consts';
+import { bodyTableRange, dateRange, dateSignRange, defaultOutputFileName, fullPageRange, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFileName, templateFolder, totalItemsRange } from './consts';
 import { IPerson, IInuptData, IFileBase } from './interface';
-import { reverseDateFromFileName, getDateFromFileName, toInterface, formatDate } from './helpers';
+import { getDateFromFileName, toInterface } from './helpers';
+
+const argv = yargs(process.argv.slice(2))
+  .option("file", {
+    alias: "f",
+    type: "string",
+    description: "output file suffix",
+    demandOption: false,
+  })
+  .option("documentNumber", {
+    alias: "n",
+    type: "string",
+    description: "document number start",
+    demandOption: false,
+  })
+  .parse();
+
+const outputFileName = argv['file'] || defaultOutputFileName;
+const outputDocNumberStart = argv['documentNumber'];
 
 const templateDirPath = path.join(__dirname, templateFolder);
 const inputDirPath = path.join(__dirname, inputFileDir);
@@ -92,11 +111,15 @@ try {
     addBordersMultiTable(updSheet, [headerTableRange, bodyTableRange]);
     addRotateStyles(updSheet, [subjectNameRange, dateRange, totalItemsRange, dateSignRange]);
 
-    // setCellTypeForRange(updSheet, waterValuesRange, 'n')
-
-    const dataCells = insertDataIntoRange(updSheet, dateRange, dateList);
+    const dateCells = insertDataIntoRange(updSheet, dateRange, dateList);
     
-    exportListToExcel(book, mainFileBase, dataCells, 'квітень'); // TODO: set from cli
+    exportListToExcel({
+        book,
+        data: mainFileBase,
+        dateList: dateCells,
+        fileSuffix: outputFileName,
+        documentNumberStart: outputDocNumberStart
+    });
 
 } catch (error) {
     console.log(error);

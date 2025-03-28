@@ -1,3 +1,4 @@
+import { WorkBook } from "xlsx-js-style"
 import { numb, IPN, nameSign, locationSign } from "../consts"
 
 export interface IInuptData {
@@ -20,4 +21,17 @@ export interface IDataCell {
 
 export interface IFileBase {
     [key: string]: IPerson[]
+};
+
+export interface ICalcTotalWatePerDay {
+    totalColArr: number[],
+    total: number
+};
+
+export interface IExportToExcelArgs {
+    book: WorkBook,
+    data: IFileBase,
+    dateList: IDataCell[],
+    fileSuffix: string,
+    documentNumberStart?: string | number
 };
