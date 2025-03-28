@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx-js-style';
 import { defaultFont, leftCenterAlignHV, centerAlignVH, defaultBorderStyle, defultStyles, textRotation, waterConst, waterValuesRange } from '../consts';
 import { IDataCell, IPerson } from '../interface';
-import { parseToNum } from '../helpers';
+import { addOneDayToDateStr, formatDate, parseToNum, reverseDateFromFileName } from '../helpers';
 
 export const getCellsArrFromRange = (worksheet: XLSX.WorkSheet, range: string): IDataCell[] => {
     const rangeRef = XLSX.utils.decode_range(range);
@@ -122,13 +122,16 @@ export const setDailyWaterIntale = (booksheet: XLSX.WorkSheet, nameCells: IDataC
 
         const cossCoordinates = currPersone.date.map((currDate) => {
             const crossDate = dateList.find((d) => d.value === currDate);
+            if (!crossDate) return '';
 
             return { c: crossDate.colIndex, r: nameCell.rowIndex };
         });
 
         cossCoordinates.forEach((coordinateItem) => {
-            const cellAddress = XLSX.utils.encode_cell(coordinateItem);
-            localSheet[cellAddress] = { ...localSheet[cellAddress], v: waterConst }
+            if (coordinateItem) {
+                const cellAddress = XLSX.utils.encode_cell(coordinateItem);
+                localSheet[cellAddress] = { ...localSheet[cellAddress], v: waterConst }
+            }
         });
 
     });
@@ -186,4 +189,10 @@ export const calcTotalWaterPerDay = (worksheet: XLSX.WorkSheet, valuesRange: str
         total: values.reduce((prev, curr) => (prev + curr), 0)
     }
     
+};
+
+export const parseDateForOutpu = (dateStr: string): string => {
+    const reversed = reverseDateFromFileName(dateStr);
+    const formated = formatDate(reversed);
+    return addOneDayToDateStr(formated);
 };

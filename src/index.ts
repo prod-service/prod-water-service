@@ -2,11 +2,11 @@ import * as fs from 'fs';
 // import * as fs from 'fs/promises';
 import * as path from 'path';
 import { getSheetData, getSheetDataJson, getWorkbookXlsx } from './xls-sheet/import';
-import { addBordersMultiTable, addCellsStyles, addRotateStyles, calcTotalWaterPerDay, insertDataIntoRange, setCellTypeForRange } from './xls-sheet/xlsHelpers';
+import { addBordersMultiTable, addCellsStyles, addRotateStyles, calcTotalWaterPerDay, insertDataIntoRange, parseDateForOutpu, setCellTypeForRange } from './xls-sheet/xlsHelpers';
 import { exportListToExcel } from './xls-sheet/export';
 import { bodyTableRange, dateRange, dateSeparator, dateSignRange, fullPageRange, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFileName, templateFolder, totalDayWaterRange, totalItemsRange, waterValuesRange } from './consts';
 import { IPerson, IInuptData, IFileBase } from './interface';
-import { reverseDateFromFileName, getDateFromFileName, toInterface } from './helpers';
+import { reverseDateFromFileName, getDateFromFileName, toInterface, formatDate } from './helpers';
 
 const templateDirPath = path.join(__dirname, templateFolder);
 const inputDirPath = path.join(__dirname, inputFileDir);
@@ -23,11 +23,6 @@ const concatPersonLists = (baseItems: IPerson[], nextItems: IPerson[]): IPerson[
         
         return prev;
     }, []);
-};
-
-const formatDate = (fileDate: string): string => {
-    const parts = fileDate.split(dateSeparator);
-    return `${parts[0]}.${parts[1]}.${parts[2].slice(2)}.`;
 };
 
 const parseInputFile = (inputObj: IInuptData[], date: string): IFileBase => {
@@ -70,10 +65,10 @@ const concatToSignleFilBse = (prevObj: IFileBase, currentObj: IFileBase): IFileB
 try {
 
     const fileList = fs.readdirSync(inputDirPath);
-    const dateList = fileList.map(fileName => formatDate(reverseDateFromFileName(getDateFromFileName(fileName))))
+    const dateList = fileList.map(fileName => parseDateForOutpu(getDateFromFileName(fileName)));
 
     const parsedFileList = fileList.map((fileName) => {
-        const fileDate: string = formatDate(reverseDateFromFileName(getDateFromFileName(fileName)));
+        const fileDate: string = parseDateForOutpu(getDateFromFileName(fileName));
         
         const data = fs.readFileSync(path.join(inputDirPath, fileName));
         
