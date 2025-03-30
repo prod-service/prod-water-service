@@ -25,7 +25,7 @@ const argv = yargs(process.argv.slice(2))
   .parse();
 
 const outputFileName = argv['file'] || defaultOutputFileName;
-const outputDocNumberStart = argv['documentNumber'];
+const outputDocNumberStart = argv['documentNumber'] || '';
 
 const templateDirPath = path.join(__dirname, templateFolder);
 const inputDirPath = path.join(__dirname, inputFileDir);
