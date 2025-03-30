@@ -8,6 +8,9 @@ import { exportListToExcel } from './xls-sheet/export';
 import { bodyTableRange, dateRange, dateSignRange, defaultOutputFileName, fullPageRange, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFileName, templateFolder, totalItemsRange } from './consts';
 import { IPerson, IInuptData, IFileBase } from './interface';
 import { getDateFromFileName, toInterface } from './helpers';
+import FileReaderService from './file-reader';
+
+const fileService = new FileReaderService({ fileService: fs});
 
 const argv = yargs(process.argv.slice(2))
   .option("file", {
@@ -83,13 +86,13 @@ const concatToSignleFilBse = (prevObj: IFileBase, currentObj: IFileBase): IFileB
 
 try {
 
-    const fileList = fs.readdirSync(inputDirPath);
+    const fileList = fileService.getDirFileList(inputDirPath);
     const dateList = fileList.map(fileName => parseDateForOutpu(getDateFromFileName(fileName)));
 
     const parsedFileList = fileList.map((fileName) => {
         const fileDate: string = parseDateForOutpu(getDateFromFileName(fileName));
         
-        const data = fs.readFileSync(path.join(inputDirPath, fileName));
+        const data = fileService.getSingleFile(path.join(inputDirPath, fileName));
         
         const sheetData = getSheetDataJson(getSheetData(getWorkbookXlsx(data)));
         
@@ -101,17 +104,17 @@ try {
         return { ...prev, ...concatToSignleFilBse(prev, curr) };
     }, {});
 
-    const templateFile = fs.readdirSync(templateDirPath).find(t => t === templateFileName);
-    const templateBuffer = fs.readFileSync(path.join(templateDirPath, templateFile));
+    const templateFile = fileService.getDirFileList(templateDirPath).find(t => t === templateFileName);
+    const templateBuffer = fileService.getSingleFile(path.join(templateDirPath, templateFile));
 
     const book = getWorkbookXlsx(templateBuffer);
-    const updSheet = getSheetData(book);
-    
-    addCellsStyles(updSheet, fullPageRange);
-    addBordersMultiTable(updSheet, [headerTableRange, bodyTableRange]);
-    addRotateStyles(updSheet, [subjectNameRange, dateRange, totalItemsRange, dateSignRange]);
-
+    let updSheet = getSheetData(book);
     const dateCells = insertDataIntoRange(updSheet, dateRange, dateList);
+    
+    updSheet = { ...updSheet, ...addCellsStyles(updSheet, fullPageRange) }
+    updSheet = { ...updSheet, ...addBordersMultiTable(updSheet, [headerTableRange, bodyTableRange]) }
+    updSheet = { ...updSheet, ...addRotateStyles(updSheet, [subjectNameRange, dateRange, totalItemsRange, dateSignRange]) }
+
     
     exportListToExcel({
         book,
