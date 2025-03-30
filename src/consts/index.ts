@@ -37,6 +37,7 @@ export const warningMessage: string = `Увага! Перед загрузкою
 export const outputFolder = '../../output-files';
 export const inputFileDir = '../input-files';
 export const templateFolder = '../template-file';
+export const outputTotalFileName = 'total';
 
 export const numb = '№';
 export const IPN = 'ІПН';

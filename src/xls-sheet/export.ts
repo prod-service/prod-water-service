@@ -1,10 +1,17 @@
-import { WorkBook, writeFile } from "xlsx-js-style";
+import { utils, WorkBook, writeFile } from "xlsx-js-style";
 import path from "path";
-import { mainTotalWaterValueCell, maxNameListLength, namesRange, outputFolder, totalDayWaterRange, waterValuesRange } from "../consts";
+import { mainTotalWaterValueCell, maxNameListLength, namesRange, outputFolder, outputTotalFileName, totalDayWaterRange, waterValuesRange } from "../consts";
 import { getSheetData } from "./import";
 import { calcTotalWaterPerDay, insertDataIntoRange, setDailyWaterIntale, setDocumentNumber } from "./xlsHelpers";
-import { IExportToExcelArgs } from "../interface";
+import { IExportToExcelArgs, ITotalFile } from "../interface";
 import { parseToNum, reaplaceStringSymbol } from "../helpers";
+
+export const createWorkbookByJson = (data: any, sheetName: string = 'sheet_1'): WorkBook => {
+    const worksheet = utils.json_to_sheet(data);
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, sheetName);
+    return workbook;
+};
 
 export const saveExcelFile = (workbook: WorkBook, newFilePath: string) => {
     writeFile(workbook, newFilePath, { bookType: 'xlsx', type: 'array', cellStyles: true });
@@ -13,6 +20,7 @@ export const saveExcelFile = (workbook: WorkBook, newFilePath: string) => {
 export const exportListToExcel = ({ book, data, dateList, fileSuffix, documentNumberStart }: IExportToExcelArgs): void => {
     const sheet = getSheetData(book);
     let documentCounter = parseToNum(documentNumberStart);
+    let totalCalcData: ITotalFile[] = [];
     
     Object.keys(data).forEach((locationName) => {
         const rawList = data[locationName];
@@ -37,7 +45,21 @@ export const exportListToExcel = ({ book, data, dateList, fileSuffix, documentNu
             book.Sheets[book.SheetNames[0]] = updSheet;
 
             saveExcelFile(book, path.join(__dirname, outputFolder, outputFileName));
+            totalCalcData.push({ location: outputFileName, total });
             documentCounter++; // increase doc number and set for the next one
         };
     });
+
+    saveTotalFile(totalCalcData, path.join(__dirname, outputFolder, `${outputTotalFileName}_${fileSuffix}.xlsx`))
+};
+
+export const saveTotalFile = (data: ITotalFile[], filePath: string) => {
+    const totalRow: ITotalFile = data.reduce((prev, curr) => {
+        const total = parseToNum(prev.total) + parseToNum(curr.total);
+        return { ...prev, total  };
+    }, { location: 'Всього', total: 0 });
+
+    data.push(totalRow);
+    const totalWorkbook = createWorkbookByJson(data, 'Total');
+    saveExcelFile(totalWorkbook, filePath);
 };

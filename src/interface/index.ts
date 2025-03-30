@@ -35,3 +35,8 @@ export interface IExportToExcelArgs {
     fileSuffix: string,
     documentNumberStart?: string | number
 };
+
+export interface ITotalFile {
+    location: string,
+    total: number | string
+};
