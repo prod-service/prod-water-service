@@ -2,7 +2,7 @@ import { utils, WorkBook, writeFile } from "xlsx-js-style";
 import path from "path";
 import { mainTotalWaterValueCell, maxNameListLength, namesRange, outputFolder, outputTotalFileName, totalDayWaterRange, waterValuesRange } from "../consts";
 import { getSheetData } from "./import";
-import { calcTotalWaterPerDay, insertDataIntoRange, setDailyWaterIntale, setDocumentNumber } from "./xlsHelpers";
+import { calcTotalWaterPerDay, fillEmptyCellsInRange, insertDataIntoRange, setDailyWaterIntale, setDocumentNumber } from "./xlsHelpers";
 import { IExportToExcelArgs, ITotalFile } from "../interface";
 import { parseToNum, reaplaceStringSymbol } from "../helpers";
 
@@ -41,6 +41,8 @@ export const exportListToExcel = ({ book, data, dateList, fileSuffix, documentNu
             insertDataIntoRange(updSheet, mainTotalWaterValueCell, [`${total}`]);
 
             if (documentNumberStart) setDocumentNumber(updSheet, documentCounter);
+
+            fillEmptyCellsInRange(updSheet, waterValuesRange);
 
             book.Sheets[book.SheetNames[0]] = updSheet;
 
