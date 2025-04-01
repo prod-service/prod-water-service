@@ -99,7 +99,6 @@ try {
         return parseInputFile(toInterface(sheetData), fileDate);
     });
 
-
     const mainFileBase: IFileBase = parsedFileList.reduce((prev, curr: IFileBase): IFileBase => {
         return { ...prev, ...concatToSignleFilBse(prev, curr) };
     }, {});
