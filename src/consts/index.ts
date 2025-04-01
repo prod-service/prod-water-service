@@ -48,6 +48,7 @@ export const waterConst = '1,5';
 export const maxNameListLength = 40;
 export const dateRegex = new RegExp(`\\d{2,4}\\${dateSeparator}\\d{1,2}\\${dateSeparator}\\d{1,2}`);
 export const defaultOutputFileName = 'вода';
+export const emptyCellSign = '-';
 
 // Excel's
 export const defaultFontName = 'Times New Roman';

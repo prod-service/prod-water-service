@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx-js-style';
-import { defaultFont, leftCenterAlignHV, centerAlignVH, defaultBorderStyle, defultStyles, textRotation, waterConst, headerTitleCellAddress, documentNumberCellAddress, registNumberCellAddress } from '../consts';
+import { defaultFont, leftCenterAlignHV, centerAlignVH, defaultBorderStyle, defultStyles, textRotation, waterConst, headerTitleCellAddress, documentNumberCellAddress, registNumberCellAddress, emptyCellSign } from '../consts';
 import { ICalcTotalWatePerDay, IDataCell, IPerson } from '../interface';
 import { addOneDayToDateStr, formatDate, parseToNum, reverseDateFromFileName } from '../helpers';
 import { headerTitle } from './dictionary';
@@ -203,4 +203,22 @@ export const setDocumentNumber = (worksheet: XLSX.WorkSheet, numberValue: string
         ...worksheet[headerTitleCellAddress],
         v: headerTitle(numberValue)
     }
+};
+
+export const fillEmptyCellsInRange = (worksheet: XLSX.WorkSheet, range: string): XLSX.WorkSheet => {
+    let localSheet = { ...worksheet };
+    const rangeRef = XLSX.utils.decode_range(range);
+    
+    for (let row = rangeRef.s.r; row <= rangeRef.e.r; row++) {
+
+        for (let col = rangeRef.s.c; col <= rangeRef.e.c; col++) {
+            const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+            
+            if (!worksheet[cellAddress] || !worksheet[cellAddress].v) {
+                worksheet[cellAddress] = { ...worksheet[cellAddress], v: emptyCellSign }; // Якщо комірка порожня, створюємо її
+            }
+        };
+    };
+
+    return localSheet;
 };
