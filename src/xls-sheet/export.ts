@@ -1,6 +1,6 @@
 import { utils, WorkBook, writeFile } from "xlsx-js-style";
 import path from "path";
-import { mainTotalWaterValueCell, maxNameListLength, namesRange, outputFolder, outputTotalFileName, totalDayWaterRange, waterValuesRange } from "../consts";
+import { mainTotalWaterValueCell, mainTotalWaterValueCellHalfTempl, maxNameListLength, namesRange, outputFolder, outputTotalFileName, totalDayWaterRange, totalDayWaterRangeHalfTempl, waterValuesRange, waterValuesRangeHalfTempl } from "../consts";
 import { getSheetData } from "./import";
 import { calcTotalWaterPerDay, fillEmptyCellsInRange, insertDataIntoRange, setDailyWaterIntale, setDocumentNumber } from "./xlsHelpers";
 import { IExportToExcelArgs, ITotalFile } from "../interface";
@@ -17,7 +17,11 @@ export const saveExcelFile = (workbook: WorkBook, newFilePath: string) => {
     writeFile(workbook, newFilePath, { bookType: 'xlsx', type: 'array', cellStyles: true });
 };
 
-export const exportListToExcel = ({ book, data, dateList, fileSuffix, documentNumberStart }: IExportToExcelArgs): void => {
+export const exportListToExcel = ({ book, data, dateList, fileSuffix, documentNumberStart, isHalfTemplate }: IExportToExcelArgs): void => {
+    const totalWaterRange = isHalfTemplate ? totalDayWaterRangeHalfTempl : totalDayWaterRange;
+    const mainTotalCell = isHalfTemplate ? mainTotalWaterValueCellHalfTempl : mainTotalWaterValueCell;
+    const waterRange = isHalfTemplate ? waterValuesRangeHalfTempl : waterValuesRange;
+
     const sheet = getSheetData(book);
     let documentCounter = parseToNum(documentNumberStart);
     let totalCalcData: ITotalFile[] = [];
@@ -36,13 +40,13 @@ export const exportListToExcel = ({ book, data, dateList, fileSuffix, documentNu
             
             const updSheet = setDailyWaterIntale(sheet, nameCells, dateList, rawList);
             
-            const { totalColArr, total } = calcTotalWaterPerDay(updSheet, waterValuesRange);
-            insertDataIntoRange(updSheet, totalDayWaterRange, totalColArr.map(i => `${i}`));
-            insertDataIntoRange(updSheet, mainTotalWaterValueCell, [`${total}`]);
+            const { totalColArr, total } = calcTotalWaterPerDay(updSheet, waterRange);
+            insertDataIntoRange(updSheet, totalWaterRange, totalColArr.map(i => `${i}`));
+            insertDataIntoRange(updSheet, mainTotalCell, [`${total}`]);
 
             if (documentNumberStart) setDocumentNumber(updSheet, documentCounter);
 
-            fillEmptyCellsInRange(updSheet, waterValuesRange);
+            fillEmptyCellsInRange(updSheet, waterRange);
 
             book.Sheets[book.SheetNames[0]] = updSheet;
 

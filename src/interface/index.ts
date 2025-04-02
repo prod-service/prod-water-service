@@ -33,7 +33,8 @@ export interface IExportToExcelArgs {
     data: IFileBase,
     dateList: IDataCell[],
     fileSuffix: string,
-    documentNumberStart?: string | number
+    documentNumberStart?: string | number,
+    isHalfTemplate?: boolean
 };
 
 export interface ITotalFile {
