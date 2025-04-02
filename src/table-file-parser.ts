@@ -3,7 +3,7 @@ export default class TableFileParser {
         
     }
 
-    dateListByFileNames (fileNames: string[]): string[] {
+    getDateListByFileNames (fileNames: string[]): string[] {
         return fileNames;
     }
 }
