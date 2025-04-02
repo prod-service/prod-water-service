@@ -5,7 +5,7 @@ import yargs from "yargs";
 import { getSheetData, getSheetDataJson, getWorkbookXlsx } from './xls-sheet/import';
 import { addBordersMultiTable, addCellsStyles, addRotateStyles, insertDataIntoRange, parseDateForOutpu } from './xls-sheet/xlsHelpers';
 import { exportListToExcel } from './xls-sheet/export';
-import { bodyTableRange, dateRange, dateSignRange, defaultOutputFileName, fullPageRange, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFileName, templateFolder, totalItemsRange } from './consts';
+import { bodyTableRange, dateRange, dateSignRange, defaultOutputFileName, fullPageRange, fullTemplateFileName, halfTemplateFileName, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFolder, totalItemsRange } from './consts';
 import { IPerson, IInuptData, IFileBase } from './interface';
 import { getDateFromFileName, toInterface } from './helpers';
 
@@ -22,13 +22,21 @@ const argv = yargs(process.argv.slice(2))
     description: "document number start",
     demandOption: false,
   })
+  .option("halfTemplate", {
+    alias: "h",
+    type: "boolean",
+    description: "half template if needed",
+    demandOption: false,
+  })
   .parse();
 
 const outputFileName = argv['file'] || defaultOutputFileName;
 const outputDocNumberStart = argv['documentNumber'] || '';
+const isHalfTemplate = argv['halfTemplate'] || false;
 
 const templateDirPath = path.join(__dirname, templateFolder);
 const inputDirPath = path.join(__dirname, inputFileDir);
+const templateFileName = isHalfTemplate ? halfTemplateFileName : fullTemplateFileName;
 
 
 const concatPersonLists = (baseItems: IPerson[], nextItems: IPerson[]): IPerson[] => {
@@ -118,7 +126,8 @@ try {
         data: mainFileBase,
         dateList: dateCells,
         fileSuffix: outputFileName,
-        documentNumberStart: outputDocNumberStart
+        documentNumberStart: outputDocNumberStart,
+        isHalfTemplate: isHalfTemplate
     });
 
 } catch (error) {

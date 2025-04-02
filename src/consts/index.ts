@@ -12,7 +12,8 @@ export const egg = 'яйце';
 export const vit = 'гексавіт';
 
 export const fileNamePrefix = 'namesCombined';
-export const templateFileName = 'Роздавальна відомість (чиста).xlsx';
+export const fullTemplateFileName = 'Роздавальна відомість (чиста).xlsx';
+export const halfTemplateFileName = 'Роздавальна відомість (половина).xlsx';
 
 export const mealNames = [breakfast, lunch, dinner];
 export const countByItems = [egg, vit]
@@ -77,6 +78,21 @@ export const mainTotalWaterValueCell = 'AH58';
 export const headerTitleCellAddress = 'A1';
 export const registNumberCellAddress = 'A5';
 export const documentNumberCellAddress = 'G5';
+// data for half template
+export const totalDayWaterRangeHalfTempl = 'C58:R58';
+export const mainTotalWaterValueCellHalfTempl = 'S58';
+export const waterValuesRangeHalfTempl = 'C18:R57';
+
+// TODO: handle half template
+export const getTemplateMetaData = (isHalf: boolean = false): object => {
+    return {
+        fullPageRange: isHalf ? 'A1:T69' : 'A1:AI69',
+        dateRange: isHalf ? 'C14:R14' : 'C14:AG14',
+        headerTableRange: isHalf ? 'A4:T5' : 'A4:AI5',
+        bodyTableRange: isHalf ? 'A7:T59' : 'A7:AI59',
+
+    };
+};
 
 const resultExample: IFileBase = {
     'kotlove': [
