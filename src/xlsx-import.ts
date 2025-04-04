@@ -1,13 +1,13 @@
-import { read, utils, WorkBook, WorkSheet } from 'xlsx-js-style';
+import { read, utils, WorkBook, WorkSheet } from 'xlsx-js-style'; // outside module
 
-interface IXlsxImport {
-    getWorkbookXlsx: (data: Buffer<ArrayBufferLike>) => WorkBook,
-    getSheetData: (workbook: WorkBook, sheetIndex: number) => WorkSheet
-    getSheetDataJson: (sheet: WorkSheet) =>unknown[]
-}
+export abstract class IXlsxImport {
+    getWorkbookXlsx: (data: Buffer<ArrayBufferLike>) => WorkBook;
+    getSheetData: (workbook: WorkBook, sheetIndex: number) => WorkSheet;
+    getSheetDataJson: (sheet: WorkSheet) =>unknown[];
+};
 
-class XlsxImport implements IXlsxImport {
-    static getWorkbookXlsx = (data: Buffer<ArrayBufferLike>): WorkBook => {
+export class XlsxImport extends IXlsxImport {
+    static getWorkbook = (data: Buffer<ArrayBufferLike>): WorkBook => {
         return read(data, { type: "buffer", cellStyles: true });
     };
     
@@ -19,4 +19,8 @@ class XlsxImport implements IXlsxImport {
     static getSheetDataJson = (sheet: WorkSheet): unknown[] => {
         return utils.sheet_to_json(sheet);
     };
-}
+
+    static getJsonFromBuffer = (data: Buffer<ArrayBufferLike>): unknown[] => {
+        return this.getSheetDataJson(this.getSheetData(this.getWorkbook(data)));
+    }
+};

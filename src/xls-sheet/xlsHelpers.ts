@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx-js-style';
 import { defaultFont, leftCenterAlignHV, centerAlignVH, defaultBorderStyle, defultStyles, textRotation, waterConst, headerTitleCellAddress, documentNumberCellAddress, registNumberCellAddress, emptyCellSign } from '../consts';
 import { ICalcTotalWatePerDay, IDataCell, IPerson } from '../interface';
-import { addOneDayToDateStr, formatDate, parseToNum, reverseDateFromFileName } from '../helpers';
+import { parseToNum } from '../helpers';
 import { headerTitle } from './dictionary';
 
 export const getCellsArrFromRange = (worksheet: XLSX.WorkSheet, range: string): IDataCell[] => {
@@ -193,11 +193,11 @@ export const calcTotalWaterPerDay = (worksheet: XLSX.WorkSheet, valuesRange: str
     
 };
 
-export const parseDateForOutpu = (dateStr: string): string => {
-    const reversed = reverseDateFromFileName(dateStr);
-    const formated = formatDate(reversed);
-    return addOneDayToDateStr(formated);
-};
+// export const parseDateForOutpu = (dateStr: string): string => {
+//     const reversed = reverseDateFromFileName(dateStr);
+//     const formated = formatDate(reversed);
+//     return addOneDayToDateStr(formated);
+// };
 
 export const setDocumentNumber = (worksheet: XLSX.WorkSheet, numberValue: string | number): void => {
     [registNumberCellAddress, documentNumberCellAddress]

@@ -14,7 +14,7 @@ export class DateParser implements IDateParser {
     constructor(dateRegex: RegExp, dateSeparator: string) {
         this.dateRegex = dateRegex;
         this.dateSeparator = dateSeparator;
-    }
+    };
 
     getDateFromFileName = (fileName: string): string => {
         const dateMatch = fileName.match(this.dateRegex);

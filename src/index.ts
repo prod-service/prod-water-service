@@ -3,14 +3,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import yargs from "yargs";
 import { getSheetData, getSheetDataJson, getWorkbookXlsx } from './xls-sheet/import';
-import { addBordersMultiTable, addCellsStyles, addRotateStyles, insertDataIntoRange, parseDateForOutpu } from './xls-sheet/xlsHelpers';
+import { addBordersMultiTable, addCellsStyles, addRotateStyles, insertDataIntoRange } from './xls-sheet/xlsHelpers';
 import { exportListToExcel } from './xls-sheet/export';
-import { bodyTableRange, dateRange, dateSignRange, defaultOutputFileName, fullPageRange, fullTemplateFileName, halfTemplateFileName, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFolder, totalItemsRange } from './consts';
+import { bodyTableRange, dateRange, dateRegex, dateSeparator, dateSignRange, defaultOutputFileName, fullPageRange, fullTemplateFileName, halfTemplateFileName, headerTableRange, inputFileDir, locationSign, nameSign, subjectNameRange, templateFolder, totalItemsRange } from './consts';
 import { IPerson, IInuptData, IFileBase } from './interface';
-import { getDateFromFileName, toInterface } from './helpers';
+import { toInterface } from './helpers';
 import FileReaderService from './file-reader';
+import { OutputDateParser } from './output-date-parser';
+import { XlsxImport } from './xlsx-import';
+import { InvoiceModel } from './invoice-model';
 
 const fileService = new FileReaderService({ fileService: fs});
+const dateParser = new OutputDateParser(dateRegex, dateSeparator);
+const invoiceModel = new InvoiceModel({ locationSign: locationSign, nameSign: nameSign });
 
 const argv = yargs(process.argv.slice(2))
   .option("file", {
@@ -95,17 +100,27 @@ const concatToSignleFilBse = (prevObj: IFileBase, currentObj: IFileBase): IFileB
 try {
 
     const fileList = fileService.getDirFileList(inputDirPath);
-    const dateList = fileList.map(fileName => parseDateForOutpu(getDateFromFileName(fileName)));
+    const dateList = fileList.map(fileName => dateParser.parseString(fileName));
 
     const parsedFileList = fileList.map((fileName) => {
-        const fileDate: string = parseDateForOutpu(getDateFromFileName(fileName));
+        const fileDate: string = dateParser.parseString(fileName);
         
         const data = fileService.getSingleFile(path.join(inputDirPath, fileName));
         
-        const sheetData = getSheetDataJson(getSheetData(getWorkbookXlsx(data)));
+        const sheetData = XlsxImport.getJsonFromBuffer(data);
         
         return parseInputFile(toInterface(sheetData), fileDate);
     });
+
+    // const parsedFileListClass = fileList.map((fileName) => {
+    //     const fileDate: string = dateParser.parseString(fileName);
+        
+    //     const data = fileService.getSingleFile(path.join(inputDirPath, fileName));
+        
+    //     const sheetData = XlsxImport.getJsonFromBuffer(data);
+        
+    //     return invoiceModel.create(toInterface(sheetData), fileDate);
+    // });
 
     const mainFileBase: IFileBase = parsedFileList.reduce((prev, curr: IFileBase): IFileBase => {
         return { ...prev, ...concatToSignleFilBse(prev, curr) };

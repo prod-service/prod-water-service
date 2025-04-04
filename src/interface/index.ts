@@ -41,3 +41,7 @@ export interface ITotalFile {
     location: string,
     total: number | string
 };
+
+export interface IStringParser {
+    parseString: (inputStr: string) => string
+};
