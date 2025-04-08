@@ -1,4 +1,4 @@
-import { IPerson } from "./interface";
+import { IPerson } from "../interface";
 
 export interface IPersonItem extends IPerson {
     name: string,
@@ -8,8 +8,8 @@ export interface IPersonItem extends IPerson {
 }
 
 export class PersonItem implements IPersonItem {
-    name: string;
-    date: string[];
+    public name: string;
+    public date: string[];
 
     constructor({ name, date }: IPerson) { // IPersonParams
         this.name = name;

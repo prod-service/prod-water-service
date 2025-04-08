@@ -11,11 +11,12 @@ import { toInterface } from './helpers';
 import FileReaderService from './file-reader';
 import { OutputDateParser } from './output-date-parser';
 import { XlsxImport } from './xlsx-import';
-import { InvoiceModel } from './invoice-model';
-
-const fileService = new FileReaderService({ fileService: fs});
-const dateParser = new OutputDateParser(dateRegex, dateSeparator);
-const invoiceModel = new InvoiceModel({ locationSign: locationSign, nameSign: nameSign });
+import { LocationListService } from './services/LocationListService';
+import LocationFactory from './factories/LocationFactory';
+import LocationService from './services/LocationService';
+import { LocationMerger } from './strategies/LocationMerge';
+import MergeByPersonNameStrategy from './strategies/MergeByPersonNameStrategy';
+import { ILocationItem } from './entities/Location';
 
 const argv = yargs(process.argv.slice(2))
   .option("file", {
@@ -99,53 +100,58 @@ const concatToSignleFilBse = (prevObj: IFileBase, currentObj: IFileBase): IFileB
 
 try {
 
+    const fileService = new FileReaderService({ fileService: fs});
+    const dateParser = new OutputDateParser(dateRegex, dateSeparator);
+    const locationMerger = new LocationMerger(new MergeByPersonNameStrategy())
+    const invoiceModel = new LocationListService({
+        locationSign: locationSign,
+        nameSign: nameSign,
+        locationFactory: new LocationFactory(),
+        locationService: new LocationService()
+    });
+
     const fileList = fileService.getDirFileList(inputDirPath);
     const dateList = fileList.map(fileName => dateParser.parseString(fileName));
 
-    const parsedFileList = fileList.map((fileName) => {
+    const locationsList = fileList.map((fileName) => {
         const fileDate: string = dateParser.parseString(fileName);
         
         const data = fileService.getSingleFile(path.join(inputDirPath, fileName));
         
         const sheetData = XlsxImport.getJsonFromBuffer(data);
         
-        return parseInputFile(toInterface(sheetData), fileDate);
+        return invoiceModel.create(toInterface(sheetData), fileDate);
     });
 
-    // const parsedFileListClass = fileList.map((fileName) => {
-    //     const fileDate: string = dateParser.parseString(fileName);
-        
-    //     const data = fileService.getSingleFile(path.join(inputDirPath, fileName));
-        
-    //     const sheetData = XlsxImport.getJsonFromBuffer(data);
-        
-    //     return invoiceModel.create(toInterface(sheetData), fileDate);
+    const mainFileBase: ILocationItem[] = locationMerger.merge(locationsList);
+
+    console.log(mainFileBase);
+    
+
+    // const mainFileBase: IFileBase = parsedFileList.reduce((prev, curr: IFileBase): IFileBase => {
+    //     return { ...prev, ...concatToSignleFilBse(prev, curr) };
+    // }, {});
+
+    // const templateFile = fileService.getDirFileList(templateDirPath).find(t => t === templateFileName);
+    // const templateBuffer = fileService.getSingleFile(path.join(templateDirPath, templateFile));
+
+    // const book = getWorkbookXlsx(templateBuffer);
+    // let updSheet = getSheetData(book);
+    // const dateCells = insertDataIntoRange(updSheet, dateRange, dateList);
+    
+    // updSheet = { ...updSheet, ...addCellsStyles(updSheet, fullPageRange) }
+    // updSheet = { ...updSheet, ...addBordersMultiTable(updSheet, [headerTableRange, bodyTableRange]) }
+    // updSheet = { ...updSheet, ...addRotateStyles(updSheet, [subjectNameRange, dateRange, totalItemsRange, dateSignRange]) }
+
+    
+    // exportListToExcel({
+    //     book,
+    //     data: mainFileBase,
+    //     dateList: dateCells,
+    //     fileSuffix: outputFileName,
+    //     documentNumberStart: outputDocNumberStart,
+    //     isHalfTemplate: isHalfTemplate
     // });
-
-    const mainFileBase: IFileBase = parsedFileList.reduce((prev, curr: IFileBase): IFileBase => {
-        return { ...prev, ...concatToSignleFilBse(prev, curr) };
-    }, {});
-
-    const templateFile = fileService.getDirFileList(templateDirPath).find(t => t === templateFileName);
-    const templateBuffer = fileService.getSingleFile(path.join(templateDirPath, templateFile));
-
-    const book = getWorkbookXlsx(templateBuffer);
-    let updSheet = getSheetData(book);
-    const dateCells = insertDataIntoRange(updSheet, dateRange, dateList);
-    
-    updSheet = { ...updSheet, ...addCellsStyles(updSheet, fullPageRange) }
-    updSheet = { ...updSheet, ...addBordersMultiTable(updSheet, [headerTableRange, bodyTableRange]) }
-    updSheet = { ...updSheet, ...addRotateStyles(updSheet, [subjectNameRange, dateRange, totalItemsRange, dateSignRange]) }
-
-    
-    exportListToExcel({
-        book,
-        data: mainFileBase,
-        dateList: dateCells,
-        fileSuffix: outputFileName,
-        documentNumberStart: outputDocNumberStart,
-        isHalfTemplate: isHalfTemplate
-    });
 
 } catch (error) {
     console.log(error);
