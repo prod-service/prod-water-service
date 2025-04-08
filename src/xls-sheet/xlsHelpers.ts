@@ -1,7 +1,7 @@
 import * as XLSX from 'xlsx-js-style';
 import { defaultFont, leftCenterAlignHV, centerAlignVH, defaultBorderStyle, defultStyles, textRotation, waterConst, headerTitleCellAddress, documentNumberCellAddress, registNumberCellAddress, emptyCellSign } from '../consts';
 import { ICalcTotalWatePerDay, IDataCell, IPerson } from '../interface';
-import { addOneDayToDateStr, formatDate, parseToNum, reverseDateFromFileName } from '../helpers';
+import { parseToNum } from '../helpers';
 import { headerTitle } from './dictionary';
 
 export const getCellsArrFromRange = (worksheet: XLSX.WorkSheet, range: string): IDataCell[] => {
@@ -39,7 +39,7 @@ export const insertStaticFormattedCells = (worksheet: XLSX.WorkSheet, formattedC
     });
 };
 
-export const addCellsStyles = (worksheet: XLSX.WorkSheet, range: string, styles: object = defultStyles): void => {
+export const addCellsStyles = (worksheet: XLSX.WorkSheet, range: string, styles: object = defultStyles): XLSX.WorkSheet => {
     const rangeRef = XLSX.utils.decode_range(range);
     
     for (let row = rangeRef.s.r; row <= rangeRef.e.r; row++) {
@@ -54,7 +54,9 @@ export const addCellsStyles = (worksheet: XLSX.WorkSheet, range: string, styles:
                 ...styles
             };
         }
-    }
+    };
+
+    return worksheet;
 };
 
 export const addBorderdsTable = (worksheet: XLSX.WorkSheet, range: string) => {
@@ -81,14 +83,18 @@ export const addBorderdsTable = (worksheet: XLSX.WorkSheet, range: string) => {
     }
 };
 
-export const addBordersMultiTable = (worksheet: XLSX.WorkSheet, range: string[]): void => {
+export const addBordersMultiTable = (worksheet: XLSX.WorkSheet, range: string[]): XLSX.WorkSheet => {
     range.forEach((rangeItem) => { addBorderdsTable(worksheet, rangeItem) });
+
+    return worksheet;
 };
 
-export const addRotateStyles = (worksheet: XLSX.WorkSheet, range: string[]): void => {
+export const addRotateStyles = (worksheet: XLSX.WorkSheet, range: string[]): XLSX.WorkSheet => {
     range.forEach((rangeItem) => {
         addCellsStyles(worksheet, rangeItem, { alignment: { textRotation, ...centerAlignVH } })
     });
+
+    return worksheet;
 };
 
 export const insertDataIntoRange = (worksheet: XLSX.WorkSheet, range: string, data: string[]): IDataCell[] => {
@@ -187,11 +193,11 @@ export const calcTotalWaterPerDay = (worksheet: XLSX.WorkSheet, valuesRange: str
     
 };
 
-export const parseDateForOutpu = (dateStr: string): string => {
-    const reversed = reverseDateFromFileName(dateStr);
-    const formated = formatDate(reversed);
-    return addOneDayToDateStr(formated);
-};
+// export const parseDateForOutpu = (dateStr: string): string => {
+//     const reversed = reverseDateFromFileName(dateStr);
+//     const formated = formatDate(reversed);
+//     return addOneDayToDateStr(formated);
+// };
 
 export const setDocumentNumber = (worksheet: XLSX.WorkSheet, numberValue: string | number): void => {
     [registNumberCellAddress, documentNumberCellAddress]

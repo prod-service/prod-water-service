@@ -1,5 +1,6 @@
 import { WorkBook } from "xlsx-js-style"
 import { numb, IPN, nameSign, locationSign } from "../consts"
+import { ILocationItem } from "../entities/Location"
 
 export interface IInuptData {
     [numb]: number,
@@ -30,7 +31,8 @@ export interface ICalcTotalWatePerDay {
 
 export interface IExportToExcelArgs {
     book: WorkBook,
-    data: IFileBase,
+    data: ILocationItem[],
+    // data: IFileBase,
     dateList: IDataCell[],
     fileSuffix: string,
     documentNumberStart?: string | number,
@@ -40,4 +42,8 @@ export interface IExportToExcelArgs {
 export interface ITotalFile {
     location: string,
     total: number | string
+};
+
+export interface IStringParser {
+    parseString: (inputStr: string) => string
 };
