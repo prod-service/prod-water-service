@@ -1,4 +1,4 @@
-import { IStringParser } from "./interface";
+import { IStringParser } from "../interface";
 
 interface ITableFileParser {
     dateParser: IStringParser

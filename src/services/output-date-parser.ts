@@ -1,5 +1,5 @@
 import { DateParser } from "./date-parser";
-import { IStringParser } from "./interface";
+import { IStringParser } from "../interface";
 
 export class OutputDateParser extends DateParser implements IStringParser {
     dateRegex: RegExp
