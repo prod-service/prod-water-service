@@ -77,7 +77,7 @@ export const totalDayWaterRange = 'C58:AG58';
 export const mainTotalWaterValueCell = 'AH58';
 export const headerTitleCellAddress = 'A1';
 export const registNumberCellAddress = 'A5';
-export const documentNumberCellAddress = 'G5';
+export const documentNumberCellAddress = 'E5';
 // data for half template
 export const totalDayWaterRangeHalfTempl = 'C58:R58';
 export const mainTotalWaterValueCellHalfTempl = 'S58';
